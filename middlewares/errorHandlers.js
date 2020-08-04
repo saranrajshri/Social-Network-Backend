@@ -6,7 +6,6 @@ const sendErrorDev = (err, res) => {
     error: {
       status: err.status,
       message: err.message,
-      error: err,
       stack: err.stack,
     },
   });

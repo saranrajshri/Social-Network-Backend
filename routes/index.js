@@ -5,10 +5,7 @@ const user = require("./user/user");
 const post = require("./post/post");
 
 // User
-router
-  .post("/user/add", user.add)
-  .get("/getAllUsers", user.getAllUsers)
-  .get("/user/test", user.test);
+router.post("/user/add", user.add).get("/getAllUsers", user.getAllUsers);
 
 // Post
 router
