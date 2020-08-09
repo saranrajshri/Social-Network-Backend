@@ -4,6 +4,10 @@ const cors = require("cors");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const routes = require("./routes/");
+const {
+  errorHandler,
+  initUnhandledExceptions,
+} = require("./middlewares/errorHandlers");
 
 require("./intializers/DBInitializer");
 
@@ -23,15 +27,10 @@ app.use(
 app.use("/api/v1", routes);
 
 // Error Handlers
-app.use((err, req, res, next) => {
-  res.status(err.status || 500);
-  res.send({
-    error: {
-      status: err.status,
-      message: err.message,
-    },
-  });
-});
+app.use(errorHandler);
+
+// Unhandled Exceptions and rejections handler
+initUnhandledExceptions();
 
 // Run Server
 const PORT = 8000;
