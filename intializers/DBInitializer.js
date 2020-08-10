@@ -8,6 +8,7 @@ mongoose
   .connect(config.MONGO_URI, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
+    useFindAndModify: false,
   })
   .then(() => {
     console.log("MongoDB Connected");

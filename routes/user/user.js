@@ -3,29 +3,46 @@ const createError = require("http-errors");
 
 // Models
 const User = require("../../models/UserSchema");
+const { asyncHandler } = require("../../middlewares/errorHandlers");
 
-user.add = async (req, res, next) => {
+user.add = asyncHandler(async (req, res, next) => {
   const { phoneNumber } = req.body;
-  try {
-    const doesUserExists = await User.find({ phoneNumber: phoneNumber });
+  const doesUserExists = await User.find({ phoneNumber: phoneNumber });
 
-    if (doesUserExists.length !== 0)
-      throw createError.Conflict("User Already Exists");
+  if (doesUserExists.length !== 0)
+    throw createError.Conflict("User Already Exists");
 
-    const user = new User(req.body);
-    const savedUser = await user.save();
+  const user = new User(req.body);
+  const savedUser = await user.save();
 
-    res.send(savedUser);
-  } catch (err) {
-    next(err);
-  }
-};
+  res.send(savedUser);
+});
 
-user.getAllUsers = async (req, res, next) => {
-  try {
-    const users = await User.find({}, { __v: 0 });
-    res.send(users);
-  } catch (err) {
-    next(err);
-  }
-};
+user.getAllUsers = asyncHandler(async (req, res, next) => {
+  const users = await User.find({}, { __v: 0 });
+  res.send(users);
+});
+
+user.find = asyncHandler(async (req, res, next) => {
+  const foundUser = await User.findOne({ _id: req.params.userID })
+    .populate("following", "name")
+    .populate("followers", "name");
+
+  res.send(foundUser);
+});
+
+user.followUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findOneAndUpdate(
+    { _id: req.params.userID },
+    { $addToSet: { following: req.params.userToBeFollowedID } }
+  );
+
+  const userToFollowed = await User.findOneAndUpdate(
+    { _id: req.params.userToBeFollowedID },
+    { $addToSet: { followers: req.params.userID } }
+  );
+
+  const updatedUser = await User.findOne({ _id: req.params.userID });
+
+  res.send(updatedUser);
+});
