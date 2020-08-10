@@ -1,8 +1,14 @@
 let user = (module.exports = {});
 const createError = require("http-errors");
+const { asyncHandler } = require("../../middlewares/errorHandlers");
 
 // Models
 const User = require("../../models/UserSchema");
+
+user.test = asyncHandler(async (req, res, next) => {
+  // res.send({ message: "hello" });
+  throw createError(400, "Error");
+});
 
 user.add = async (req, res, next) => {
   const { phoneNumber } = req.body;
