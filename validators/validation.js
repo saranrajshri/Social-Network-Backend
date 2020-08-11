@@ -18,11 +18,19 @@ const addPostAuth = Joi.object({
 const addCommentAuth = Joi.object({
   post: Joi.string().required(),
   user: Joi.string().required(),
-  comment: Joi.string().required(),
+  comment: Joi.string().min(1).required(),
+});
+
+// Notification Validation
+const addNotificationAuth = Joi.object({
+  title: Joi.string().min(1).required(),
+  description: Joi.string().min(1),
+  user: Joi.string().required(),
 });
 
 module.exports = {
   userRegisterAuth,
   addPostAuth,
   addCommentAuth,
+  addNotificationAuth,
 };

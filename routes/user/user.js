@@ -7,6 +7,7 @@ const { asyncHandler } = require("../../middlewares/errorHandlers");
 
 // Validators
 const { userRegisterAuth } = require("../../validators/validation");
+const { sendNotification } = require("../../utils/utils");
 
 // Create a new user
 user.add = asyncHandler(async (req, res, next) => {
@@ -55,12 +56,26 @@ user.followUser = asyncHandler(async (req, res, next) => {
     { $addToSet: { following: req.params.userToBeFollowedID } }
   );
 
+  const userDetails = await User.findOne(
+    { _id: req.params.userID },
+    { name: 1 }
+  );
+
   const userToFollowed = await User.findOneAndUpdate(
     { _id: req.params.userToBeFollowedID },
     { $addToSet: { followers: req.params.userID } }
   );
 
   const updatedUser = await User.findOne({ _id: req.params.userID });
+
+  // Send notification to the other user
+  let notificationDataToBeSent = {
+    title: `${userDetails.name} has follwed you`,
+    // description: "One new user has followed you", //optional field
+    user: req.params.userToBeFollowedID,
+  };
+
+  sendNotification(notificationDataToBeSent); // returns boolean
 
   res.send(updatedUser);
 });
