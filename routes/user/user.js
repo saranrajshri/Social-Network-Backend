@@ -46,3 +46,19 @@ user.followUser = asyncHandler(async (req, res, next) => {
 
   res.send(updatedUser);
 });
+
+user.unFollowUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findOneAndUpdate(
+    { _id: req.params.userID },
+    { $pull: { following: req.params.userToBeUnFollowedID } }
+  );
+
+  const userToFollowed = await User.findOneAndUpdate(
+    { _id: req.params.userToBeUnFollowedID },
+    { $pull: { followers: req.params.userID } }
+  );
+
+  const updatedUser = await User.findOne({ _id: req.params.userID });
+
+  res.send(updatedUser);
+});

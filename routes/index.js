@@ -9,7 +9,8 @@ router
   .post("/user/add", user.add)
   .get("/getAllUsers", user.getAllUsers)
   .get("/user/find/:userID", user.find)
-  .post("/user/follow/:userID/:userToBeFollowedID", user.followUser);
+  .post("/user/follow/:userID/:userToBeFollowedID", user.followUser)
+  .post("/user/unfollow/:userID/:userToBeUnFollowedID", user.unFollowUser);
 
 // Post
 router
