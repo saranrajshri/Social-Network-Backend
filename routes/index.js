@@ -3,13 +3,15 @@ const router = express.Router();
 
 const user = require("./user/user");
 const post = require("./post/post");
+const notification = require("./notification/notification");
 
 const advancedResults = require("../helpers/advancedSearchResults");
 
 // Models
 const User = require("../models/UserSchema");
+const Notification = require("../models/NotificationSchema");
 
-// User
+// User Routes
 router
   .post("/user/add", user.add)
   .get(
@@ -30,7 +32,7 @@ router
   .post("/user/follow/:userID/:userToBeFollowedID", user.followUser)
   .post("/user/unfollow/:userID/:userToBeUnFollowedID", user.unFollowUser);
 
-// Post
+// Post (Blog Post) Routes
 router
   .post("/post/add", post.add)
   .get("/post/find/:postID", post.find)
@@ -39,4 +41,13 @@ router
   .post("/post/addComment", post.addComment)
   .post("/post/removeComment/:postID/:commentID", post.removeComment);
 
+// Notification Routes
+router.post("/notification/add", notification.add).get(
+  "/notification/getAllNotificationsOfAUser/:userID",
+  advancedResults(Notification, {
+    path: "user",
+    select: "name",
+  }),
+  notification.getAllNotificationsOfAUser
+);
 module.exports = router;
