@@ -4,10 +4,28 @@ const router = express.Router();
 const user = require("./user/user");
 const post = require("./post/post");
 
+const advancedResults = require("../helpers/advancedSearchResults");
+
+// Models
+const User = require("../models/UserSchema");
+
 // User
 router
   .post("/user/add", user.add)
-  .get("/getAllUsers", user.getAllUsers)
+  .get(
+    "/user/getAllUsers",
+    advancedResults(User, [
+      {
+        path: "following",
+        select: "name",
+      },
+      {
+        path: "followers",
+        select: "name",
+      },
+    ]),
+    user.getAllUsers
+  )
   .get("/user/find/:userID", user.find)
   .post("/user/follow/:userID/:userToBeFollowedID", user.followUser)
   .post("/user/unfollow/:userID/:userToBeUnFollowedID", user.unFollowUser);

@@ -5,25 +5,42 @@ const createError = require("http-errors");
 const User = require("../../models/UserSchema");
 const { asyncHandler } = require("../../middlewares/errorHandlers");
 
+// Validators
+const { userRegisterAuth } = require("../../validators/validation");
+
+// Create a new user
 user.add = asyncHandler(async (req, res, next) => {
   const { phoneNumber } = req.body;
+
+  const userDataCopy = { ...req.body };
+  userDataCopy.phoneNumber = userDataCopy.phoneNumber.toString();
+
+  // Validate User Data
+  const validateUser = await userRegisterAuth.validateAsync(userDataCopy);
+
+  // Check user already exists or not
   const doesUserExists = await User.find({ phoneNumber: phoneNumber });
 
   if (doesUserExists.length !== 0)
     throw createError.Conflict("User Already Exists");
 
+  // Save the user
   const user = new User(req.body);
   const savedUser = await user.save();
 
   res.send(savedUser);
 });
 
+// Get all user details
 user.getAllUsers = asyncHandler(async (req, res, next) => {
-  const users = await User.find({}, { __v: 0 });
-  res.send(users);
+  // The results are coming from advancedResults middleware
+  // Refer the file helpers/advancedSearchResults.js
+  res.send(res.advancedResults);
 });
 
+// Find a user by _id
 user.find = asyncHandler(async (req, res, next) => {
+  // Get User Details
   const foundUser = await User.findOne({ _id: req.params.userID })
     .populate("following", "name")
     .populate("followers", "name");
@@ -31,6 +48,7 @@ user.find = asyncHandler(async (req, res, next) => {
   res.send(foundUser);
 });
 
+// Follow  a user
 user.followUser = asyncHandler(async (req, res, next) => {
   const user = await User.findOneAndUpdate(
     { _id: req.params.userID },
@@ -47,6 +65,7 @@ user.followUser = asyncHandler(async (req, res, next) => {
   res.send(updatedUser);
 });
 
+// Unfollow a user
 user.unFollowUser = asyncHandler(async (req, res, next) => {
   const user = await User.findOneAndUpdate(
     { _id: req.params.userID },

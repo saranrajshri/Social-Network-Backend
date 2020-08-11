@@ -1,5 +1,3 @@
-const { propfind } = require("../routes");
-
 const sendErrorDev = (err, res) => {
   res.status(err.status || 500);
   res.send({
