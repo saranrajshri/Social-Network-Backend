@@ -15,6 +15,7 @@ user.add = asyncHandler(async (req, res, next) => {
 
   const userDataCopy = { ...req.body };
   userDataCopy.phoneNumber = userDataCopy.phoneNumber.toString();
+  userDataCopy.age = userDataCopy.age.toString();
 
   // Validate User Data
   const validateUser = await userRegisterAuth.validateAsync(userDataCopy);
