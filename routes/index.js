@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const passport = require("passport");
 const user = require("./user/user");
 const post = require("./post/post");
 const notification = require("./notification/notification");
@@ -14,6 +14,12 @@ const Notification = require("../models/NotificationSchema");
 // User Routes
 router
   .post("/user/add", user.add)
+  .post("/user/login", user.login)
+  .get(
+    "/user/dashboard",
+    passport.authenticate("jwt", { session: false }),
+    user.dashboard
+  )
   .get(
     "/user/getAllUsers",
     advancedResults(User, [

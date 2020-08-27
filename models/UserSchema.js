@@ -5,6 +5,7 @@ const UserSchema = new Schema({
   name: String,
   phoneNumber: Number,
   age: Number,
+  password: String,
   posts: [
     {
       type: Schema.Types.ObjectId,

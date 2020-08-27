@@ -1,5 +1,11 @@
-let user = (module.exports = {});
+const bycrypt = require("bcryptjs");
 const createError = require("http-errors");
+const passport = require("passport");
+const jwt = require("jsonwebtoken");
+const config = require("../../config/config.json")[
+  process.env.NODE_ENV || "development"
+];
+let user = (module.exports = {});
 
 // Models
 const User = require("../../models/UserSchema");
@@ -11,7 +17,7 @@ const { sendNotification } = require("../../utils/utils");
 
 // Create a new user
 user.add = asyncHandler(async (req, res, next) => {
-  const { phoneNumber } = req.body;
+  const { phoneNumber, password } = req.body;
 
   const userDataCopy = { ...req.body };
   userDataCopy.phoneNumber = userDataCopy.phoneNumber.toString();
@@ -26,12 +32,49 @@ user.add = asyncHandler(async (req, res, next) => {
   if (doesUserExists.length !== 0)
     throw createError.Conflict("User Already Exists");
 
-  // Save the user
-  const user = new User(req.body);
-  const savedUser = await user.save();
+  // Hash Password
+  bycrypt.genSalt(10, (err, salt) => {
+    bycrypt.hash(password, salt, async (err, hashedPassword) => {
+      if (err) throw err;
+      req.body.password = hashedPassword;
+      // Save the user
+      const user = new User(req.body);
+      const savedUser = await user.save();
 
-  res.send(savedUser);
+      res.send(savedUser);
+    });
+  });
 });
+
+// User Login
+user.login = asyncHandler(async (req, res, next) => {
+  passport.authenticate("login", async (err, user, info) => {
+    try {
+      if (err || !user) {
+        const err = createError(401, "Incorrect Credentials");
+        return next(err);
+      }
+
+      req.login(user, { session: false }, async (err) => {
+        if (err) next(err);
+
+        const body = { _id: user._id, phoneNumber: user.phoneNumber };
+
+        const token = jwt.sign({ user: body }, config.secret);
+
+        return res.json({ token });
+      });
+    } catch (err) {
+      next(err);
+    }
+  })(req, res, next);
+});
+
+user.dashboard = async (req, res, next) => {
+  res.send({
+    message: "Logged In",
+  });
+};
 
 // Get all user details
 user.getAllUsers = asyncHandler(async (req, res, next) => {
