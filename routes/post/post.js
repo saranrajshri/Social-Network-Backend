@@ -8,6 +8,9 @@ let post = (module.exports = {});
 
 // Add a new post
 post.add = asyncHandler(async (req, res, next) => {
+  // req.user is obtained by decoding the token
+  req.body.user = req.user._id;
+
   // Validate Incoming Data
   const validate = await addPostAuth.validateAsync(req.body);
 
@@ -38,9 +41,11 @@ post.find = asyncHandler(async (req, res, next) => {
 
 // Add like to a post
 post.addLike = asyncHandler(async (req, res, next) => {
+  const userID = req.user._id;
+
   const postToBeModified = await Post.findOneAndUpdate(
     { _id: req.params.postID },
-    { $addToSet: { likes: req.params.userID } }
+    { $addToSet: { likes: userID } }
   );
   const updatedPost = await Post.findOne({ _id: req.params.postID });
   res.send(updatedPost);
@@ -48,9 +53,11 @@ post.addLike = asyncHandler(async (req, res, next) => {
 
 // Remove like from a post
 post.unLike = asyncHandler(async (req, res, next) => {
+  const userID = req.user._id;
+
   const postToBeModified = await Post.findOneAndUpdate(
     { _id: req.params.postID },
-    { $pull: { likes: req.params.userID } }
+    { $pull: { likes: userID } }
   );
 
   const updatedPost = await Post.findOne({ _id: req.params.postID });
@@ -59,6 +66,8 @@ post.unLike = asyncHandler(async (req, res, next) => {
 
 // Add comment to a post
 post.addComment = asyncHandler(async (req, res, next) => {
+  req.body.user = req.user._id;
+
   const { post } = req.body;
 
   // Validate Incoming Data

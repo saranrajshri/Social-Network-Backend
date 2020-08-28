@@ -49,7 +49,7 @@ passport.use(
       //secret we used to sign our JWT
       secretOrKey: config.secret,
       //we expect the user to send the token as a query parameter with the name 'auth_token'
-      jwtFromRequest: ExtractJWT.fromUrlQueryParameter("auth_token"),
+      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
     },
     async (token, done) => {
       try {

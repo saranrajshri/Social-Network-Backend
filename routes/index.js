@@ -11,17 +11,17 @@ const advancedResults = require("../helpers/advancedSearchResults");
 const User = require("../models/UserSchema");
 const Notification = require("../models/NotificationSchema");
 
+const ensureAuthenticated = passport.authenticate("jwt", { session: false });
+
 // User Routes
 router
   .post("/user/add", user.add)
   .post("/user/login", user.login)
-  .get(
-    "/user/dashboard",
-    passport.authenticate("jwt", { session: false }),
-    user.dashboard
-  )
+  .get("/user/getPosts", ensureAuthenticated, user.getPosts)
+  .get("/user/getTimeLine", ensureAuthenticated, user.getTimeLine)
   .get(
     "/user/getAllUsers",
+    ensureAuthenticated,
     advancedResults(User, [
       {
         path: "following",
@@ -34,18 +34,30 @@ router
     ]),
     user.getAllUsers
   )
-  .get("/user/find/:userID", user.find)
-  .post("/user/follow/:userID/:userToBeFollowedID", user.followUser)
-  .post("/user/unfollow/:userID/:userToBeUnFollowedID", user.unFollowUser);
+  .get("/user/find/:userID", ensureAuthenticated, user.find)
+  .post(
+    "/user/follow/:userToBeFollowedID",
+    ensureAuthenticated,
+    user.followUser
+  )
+  .post(
+    "/user/unfollow/:userToBeUnFollowedID",
+    ensureAuthenticated,
+    user.unFollowUser
+  );
 
 // Post (Blog Post) Routes
 router
-  .post("/post/add", post.add)
+  .post("/post/add", ensureAuthenticated, post.add)
   .get("/post/find/:postID", post.find)
-  .post("/post/addLike/:postID/:userID", post.addLike)
-  .post("/post/unLike/:postID/:userID", post.unLike)
-  .post("/post/addComment", post.addComment)
-  .post("/post/removeComment/:postID/:commentID", post.removeComment);
+  .post("/post/addLike/:postID", ensureAuthenticated, post.addLike)
+  .post("/post/unLike/:postID", ensureAuthenticated, post.unLike)
+  .post("/post/addComment", ensureAuthenticated, post.addComment)
+  .post(
+    "/post/removeComment/:postID/:commentID",
+    ensureAuthenticated,
+    post.removeComment
+  );
 
 // Notification Routes
 router.post("/notification/add", notification.add).get(
