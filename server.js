@@ -34,7 +34,7 @@ const expressSession = session({
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(cookieParser());
+app.use(cookieParser("abc"));
 app.use(expressSession);
 app.use(limiter);
 app.use(xss()); // santize body, params, url
