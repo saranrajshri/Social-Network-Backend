@@ -23,8 +23,10 @@ user.add = asyncHandler(async (req, res, next) => {
   const { phoneNumber, password } = req.body;
 
   const userDataCopy = { ...req.body };
-  userDataCopy.phoneNumber = userDataCopy.phoneNumber.toString();
-  userDataCopy.age = userDataCopy.age.toString();
+  if (userDataCopy.phoneNumber && userDataCopy.age) {
+    userDataCopy.phoneNumber = userDataCopy.phoneNumber.toString();
+    userDataCopy.age = userDataCopy.age.toString();
+  }
 
   // Validate User Data
   const validateUser = await userRegisterAuth.validateAsync(userDataCopy);
@@ -65,12 +67,26 @@ user.login = asyncHandler(async (req, res, next) => {
 
         const token = jwt.sign({ user: body }, config.secret);
 
-        return res.json({ token });
+        let options = {
+          maxAge: 1000 * 60 * 15, // would expire after 15 minutes
+          httpOnly: true, // The cookie only accessible by the web server
+          signed: false, // Indicates if the cookie should be signed
+        };
+
+        res.cookie("token", token, options);
+
+        return res.send({ token });
       });
     } catch (err) {
       next(err);
     }
   })(req, res, next);
+});
+
+// User Logout
+user.logout = asyncHandler(async (req, res, next) => {
+  req.logout();
+  res.send({ message: "Logged Out Successfully!" });
 });
 
 user.getTimeLine = asyncHandler(async (req, res, next) => {
@@ -101,7 +117,7 @@ user.getTimeLine = asyncHandler(async (req, res, next) => {
   const limit = parseInt(req.query.limit, 10) || 25;
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
-  const total = await Post.find({ user: { $in: following } }).count();
+  const total = await Post.find({ user: { $in: following } }).countDocuments();
 
   query = query.skip(startIndex).limit(limit);
 
@@ -205,6 +221,3 @@ user.unFollowUser = asyncHandler(async (req, res, next) => {
 
   res.send(updatedUser);
 });
-
-// get posts of user's friend
-user.getPosts = asyncHandler(async (req, res, next) => {});

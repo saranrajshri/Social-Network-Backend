@@ -17,6 +17,7 @@
     "helmet": "^4.1.0",
     "hpp": "^0.2.3",
     "http-errors": "^1.8.0",
+    "jest": "^26.4.2",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.28",
     "morgan": "^1.10.0",
@@ -24,10 +25,18 @@
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
+    "supertest": "^4.0.2",
     "xss-clean": "^0.1.1"
   },
   "scripts": {
     "start": "export NODE_ENV=development && node server.js",
-    "dev": "export NODE_ENV=development && nodemon server"
+    "dev": "export NODE_ENV=development && nodemon server",
+    "test": "export NODE_ENV=development && jest post.test.js"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
   }
 }

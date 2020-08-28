@@ -17,7 +17,7 @@ const ensureAuthenticated = passport.authenticate("jwt", { session: false });
 router
   .post("/user/add", user.add)
   .post("/user/login", user.login)
-  .get("/user/getPosts", ensureAuthenticated, user.getPosts)
+  .post("/user/logout", user.logout)
   .get("/user/getTimeLine", ensureAuthenticated, user.getTimeLine)
   .get(
     "/user/getAllUsers",
